@@ -99,11 +99,6 @@ stages:
   #       script: |
   #         cd 6.0\Apps\WeatherTwentyOne\src\
   #         dotnet publish -f net7.0-windows10.0.19041.0 -c Release
-    
-  #   # # https://docs.microsoft.com/en-us/windows/msix/desktop/cicd-overview
-  #   # - task: DownloadSecureFile@1
-  #   #   inputs:
-  #   #     secureFile: '<WINDOWS SIGNING CERT PFX>'
 
   #   - task: CopyFiles@2
   #     inputs:
@@ -111,15 +106,9 @@ stages:
   #         **\**\6.0\Apps\WeatherTwentyOne\src\WeatherTwentyOne\bin\Release\net7.0-windows10.0.19041.0\win10-x64/**/*.msix
   #         6.0\Apps\WeatherTwentyOne\src\WeatherTwentyOne\bin\Release\net7.0-windows10.0.19041.0\win10-x64/**/*.msix
   #       TargetFolder: '$(Build.ArtifactStagingDirectory)'
-   
-  #  #https://docs.microsoft.com/en-us/windows/msix/desktop/azure-dev-ops
-  #  #Create secret pipeline variable WindowsCertSecret with cert password
-  #   - script: '"C:\Program Files (x86)\Windows Kits\10\App Certification Kit\SignTool" sign /fd SHA256 /f $(Agent.TempDirectory)/XamCATFidCert.pfx /p $(WindowsCertSecret) $(Build.ArtifactStagingDirectory)\6.0\Apps\WeatherTwentyOne\src\WeatherTwentyOne\bin\Release\net7.0-windows10.0.19041.0\win10-x64\AppPackages\WeatherTwentyOne_1.0.0.0_Test\WeatherTwentyOne_1.0.0.0_x64.msix'
-  #     displayName: 'Sign MSIX Package'
-
 
   #   - task: PublishBuildArtifacts@1
   #     inputs:
   #       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-  #       ArtifactName: 'drop_windows'
+  #       ArtifactName: 'drop_artifacts'
   #       publishLocation: 'Container'
