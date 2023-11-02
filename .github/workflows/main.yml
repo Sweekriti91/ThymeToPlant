@@ -38,11 +38,6 @@ jobs:
         shell: pwsh
         run: dotnet --info
 
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
-        with:
-          vs-prerelease: true
-
       - name: Install .NET MAUI
         shell: pwsh
         run: |
