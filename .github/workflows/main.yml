@@ -1,0 +1,88 @@
+name: windowsCI
+
+on:
+  # push:
+  #   branches: [ main ]
+  # pull_request:
+  #   branches: [ main ]
+
+  workflow_dispatch:
+
+env:
+    DOTNETVERSION: 8.0.100-rc.2.23502.2
+    VSVERSION: 2022/Preview
+
+permissions:
+  checks: write
+  
+jobs:
+  buildWindows:
+    runs-on: windows-2022
+    
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Visual Studio Preview
+        run: |
+          Invoke-WebRequest -UseBasicParsing -Uri "https://aka.ms/vs/install/latest/vs_setup.exe" -OutFile "$env:TEMP\dd_vs_setup.exe"
+          & "$env:TEMP\dd_vs_setup.exe" --update --quiet --wait | Out-Null
+          
+          Invoke-WebRequest -UseBasicParsing -Uri "https://aka.ms/vs/${{env.VSVERSION}}/vs_enterprise.exe" -OutFile "$env:TEMP\dd_vs_enterprise.exe"
+          & "$env:TEMP\dd_vs_enterprise.exe" --quiet --norestart --wait --includeRecommended --add Microsoft.VisualStudio.Workload.NetCrossPlat | Out-Null
+      
+      - name: Setup .NET SDK ${{env.DOTNETVERSION}}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '${{env.DOTNETVERSION}}'
+          
+      - name: List installed .NET info
+        shell: pwsh
+        run: dotnet --info
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+        with:
+          vs-prerelease: true
+
+      - name: Install .NET MAUI
+        shell: pwsh
+        run: |
+          & dotnet nuget locals all --clear
+          & dotnet workload install maui android
+
+      - name: Restore nuget packages
+        run: |
+          src/ThymeToPlant/ThymeToPlant.sln
+
+      - name: Run Unit Test
+        shell: bash
+        run: |
+          dotnet test src/ThymeToPlant/ThymeToTest/ThymeToTest.csproj --logger trx --configuration Debug --collect:"XPlat Code Coverage"
+      
+      - name: Test Reporter
+        uses: dorny/test-reporter@v1.7.0
+        if: success() || failure()
+        with:
+          name: Unit Test Report
+          path: '**/*.trx'
+          reporter: dotnet-trx
+
+      # https://docs.microsoft.com/en-us/dotnet/maui/windows/deployment/overview
+      - name: Build Windows MSIX
+        run: |
+          cd .\src\ThymeToPlant\ThymeToPlant
+          dotnet publish -f net8.0-windows10.0.19041.0 -c Release 
+
+      - name : Build Android App
+        shell: bash
+        run: |
+          cd .\src\ThymeToPlant\ThymeToPlant
+          dotnet publish -f:net9.0-android -c:Release
+            
+      - uses: actions/upload-artifact@v2
+        with:
+          name: artifacts-windows
+          path: |
+            **\*.msix
+            **\*.apk
+          
