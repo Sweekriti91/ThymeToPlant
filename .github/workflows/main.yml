@@ -16,7 +16,7 @@ permissions:
   checks: write
   
 jobs:
-  buildWindows:
+  buildMaui:
     runs-on: windows-2022
     
     steps:
@@ -62,7 +62,7 @@ jobs:
           reporter: dotnet-trx
 
       # https://docs.microsoft.com/en-us/dotnet/maui/windows/deployment/overview
-      - name: Build Windows MSIX
+      - name: Build Apps
         run: |
           cd .\src\ThymeToPlant\ThymeToPlant
           dotnet publish -f net8.0-windows10.0.19041.0 -c Release 
@@ -70,8 +70,7 @@ jobs:
       - name : Build Android App
         shell: bash
         run: |
-          cd .\src\ThymeToPlant\ThymeToPlant
-          dotnet publish -f:net9.0-android -c:Release
+          dotnet publish src\ThymeToPlant\ThymeToPlant\ThymeToPlant.csproj -f:net8.0-android -c:Release
             
       - uses: actions/upload-artifact@v2
         with:
