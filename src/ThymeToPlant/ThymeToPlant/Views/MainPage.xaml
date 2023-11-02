@@ -21,7 +21,24 @@
                 FontSize="32"
                 HorizontalOptions="Center" />
 
+            <Entry
+                x:Name="ZipCodeEntry"
+                Placeholder="enter zipcode"
+                HorizontalOptions="Center"/>
+
             <Button
+                x:Name="FindPlantZoneButton"
+                Text="Find PlantZone"
+                HorizontalOptions="Center"
+                Clicked="FindPlantZoneButton_Clicked"/>
+
+            <Label
+                x:Name="SearchResult"
+                HorizontalOptions="Center"
+                FontSize="28"
+                TextColor="Green" />
+
+            <!--<Button
                 x:Name="AIPlantingZone"
                 Text="Ask AI Planting Zones"
                 HorizontalOptions="Center" />
@@ -29,7 +46,7 @@
             <Button
                 x:Name="AICompanionPlants"
                 Text="Ask AI Companion Plants"
-                HorizontalOptions="Center" />
+                HorizontalOptions="Center" />-->
 
         </VerticalStackLayout>
     </ScrollView>

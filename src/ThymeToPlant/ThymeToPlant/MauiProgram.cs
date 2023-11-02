@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using ThymeToPlant.Services;
 
 namespace ThymeToPlant;
 
@@ -19,7 +20,17 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 
-		return builder.Build();
-	}
+        // Services Registration
+        builder.Services.AddSingleton<PlantZoneService>();
+
+        App = builder.Build();
+
+        return App;
+    }
+
+	//Helpers
+    public static MauiApp App { get; private set; }
+    public static IServiceProvider Services
+    => App.Services;
 }
 

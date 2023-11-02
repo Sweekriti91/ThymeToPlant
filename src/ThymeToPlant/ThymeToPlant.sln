@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31611.283
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ThymeToPlant", "ThymeToPlant\ThymeToPlant.csproj", "{4439BF6B-2E5F-4145-A6F6-A5DE05FAA4FF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThymeToTest", "ThymeToTest\ThymeToTest.csproj", "{93AD045E-608E-4334-8992-93A56F2F7DCF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,6 +19,10 @@ Global
 		{4439BF6B-2E5F-4145-A6F6-A5DE05FAA4FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4439BF6B-2E5F-4145-A6F6-A5DE05FAA4FF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4439BF6B-2E5F-4145-A6F6-A5DE05FAA4FF}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{93AD045E-608E-4334-8992-93A56F2F7DCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93AD045E-608E-4334-8992-93A56F2F7DCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93AD045E-608E-4334-8992-93A56F2F7DCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93AD045E-608E-4334-8992-93A56F2F7DCF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
