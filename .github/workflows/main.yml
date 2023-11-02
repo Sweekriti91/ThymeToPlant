@@ -23,12 +23,32 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install Visual Studio Preview
+        shell: pwsh
         run: |
-          Invoke-WebRequest -UseBasicParsing -Uri "https://aka.ms/vs/install/latest/vs_setup.exe" -OutFile "$env:TEMP\dd_vs_setup.exe"
-          & "$env:TEMP\dd_vs_setup.exe" --update --quiet --wait | Out-Null
+          Write-Host "Downloading Visual Studio Installer..."
+          Invoke-WebRequest -UseBasicParsing `
+            -Uri "https://aka.ms/vs/install/latest/vs_setup.exe" `
+            -OutFile "$temp\dd_vs_setup.exe"
           
-          Invoke-WebRequest -UseBasicParsing -Uri "https://aka.ms/vs/${{env.VSVERSION}}/vs_enterprise.exe" -OutFile "$env:TEMP\dd_vs_enterprise.exe"
-          & "$env:TEMP\dd_vs_enterprise.exe" --quiet --norestart --wait --includeRecommended --add Microsoft.VisualStudio.Workload.NetCrossPlat | Out-Null
+          Write-Host "Updating the Visual Studio Installer..."
+          $exitCode = & "$temp\dd_vs_setup.exe" --update --quiet --wait | Out-Null
+          
+          Write-Host "Exit code: $exitCode"
+          
+          Write-Host "Downloading Visual Studio (${{env.VSVERSION}})..."
+          Invoke-WebRequest -UseBasicParsing `
+            -Uri "https://aka.ms/vs/${{env.VSVERSION}}/vs_community.exe" `
+            -OutFile "$temp\dd_vs_community.exe"
+          
+          Write-Host "Installing Visual Studio..."
+          $exitCode = & "$temp\dd_vs_community.exe" --quiet --norestart --wait `
+            --includeRecommended `
+            --add Microsoft.VisualStudio.Workload.NetCrossPlat `
+            --add Microsoft.VisualStudio.Workload.ManagedDesktop `
+            --add Microsoft.VisualStudio.Workload.Universal `
+            | Out-Null
+          
+          Write-Host "Exit code: $exitCode"
       
       - name: Setup .NET SDK ${{env.DOTNETVERSION}}
         uses: actions/setup-dotnet@v1
