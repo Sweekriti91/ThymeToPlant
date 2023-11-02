@@ -43,13 +43,6 @@ stages:
           & dotnet workload install maui android
 
     - task: Bash@3
-      displayName: Restore nuget
-      inputs:
-        targetType: 'inline'
-        script: |
-          src/ThymeToPlant/ThymeToPlant.sln
-
-    - task: Bash@3
       displayName: Run Unit Test
       inputs:
         targetType: 'inline'
@@ -78,36 +71,33 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          cd src/ThymeToPlant/ThymeToPlant
-          dotnet publish -f net7.0-android -c Release
+          dotnet publish src/ThymeToPlant/ThymeToPlant/ThymeToPlant.csproj -f net8.0-android -c Release
 
     # Signing Android App : https://docs.microsoft.com/en-us/azure/devops/pipelines/apps/mobile/app-signing?view=azure-devops&tabs=apple-install-during-build#sign-your-android-app
 
-  #   - task: CopyFiles@2
-  #     inputs:
-  #       Contents: |
-  #         **\**\6.0\Apps\WeatherTwentyOne\src\WeatherTwentyOne\bin\Release\net7.0-android\publish\*.apk
-  #       TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    - task: CopyFiles@2
+      inputs:
+        Contents: |
+          src/ThymeToPlant/ThymeToPlant\bin\Release\net8.0-android\publish\*.apk
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
     
   #   # https://docs.microsoft.com/en-us/dotnet/maui/windows/deployment/overview
-  #   - task: PowerShell@2
-  #     displayName: Build Windows MSIX
-  #     inputs:
-  #       targetType: 'inline'
-  #       script: |
-  #         cd 6.0\Apps\WeatherTwentyOne\src\
-  #         dotnet publish -f net7.0-windows10.0.19041.0 -c Release
+    - task: PowerShell@2
+      displayName: Build Windows MSIX
+      inputs:
+        targetType: 'inline'
+        script: |
+          dotnet publish src/ThymeToPlant/ThymeToPlant/ThymeToPlant.csproj -f net8.0-windows10.0.19041.0 -c Release
 
-  #   - task: CopyFiles@2
-  #     inputs:
-  #       Contents: |
-  #         **\**\6.0\Apps\WeatherTwentyOne\src\WeatherTwentyOne\bin\Release\net7.0-windows10.0.19041.0\win10-x64/**/*.msix
-  #         6.0\Apps\WeatherTwentyOne\src\WeatherTwentyOne\bin\Release\net7.0-windows10.0.19041.0\win10-x64/**/*.msix
-  #       TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    - task: CopyFiles@2
+      inputs:
+        Contents: |
+          src/ThymeToPlant/ThymeToPlant\bin\Release\net8.0-windows10.0.19041.0\win10-x64/**/*.msix
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-  #   - task: PublishBuildArtifacts@1
-  #     inputs:
-  #       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-  #       ArtifactName: 'drop_artifacts'
-  #       publishLocation: 'Container'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop_artifacts'
+        publishLocation: 'Container'
