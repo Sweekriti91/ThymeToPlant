@@ -1,4 +1,6 @@
-﻿namespace ThymeToTest;
+using ThymeToPlant.Services;
+
+namespace ThymeToTest;
 
 public class Tests
 {
