@@ -24,7 +24,7 @@ stages:
         targetType: 'inline'
         script: |
           curl -o dotnet-install.sh -sSL https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1
-          sh dotnet-install.sh --version ${{env.DOTNETVERSION}}
+          sh dotnet-install.sh --version $(DotNetVersion)
           dotnet --list-sdks
 
     - task: UseDotNet@2
