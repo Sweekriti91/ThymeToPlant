@@ -22,33 +22,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install Visual Studio Preview
+      - name: Install .NET 8
         shell: pwsh
         run: |
-          Write-Host "Downloading Visual Studio Installer..."
-          Invoke-WebRequest -UseBasicParsing `
-            -Uri "https://aka.ms/vs/install/latest/vs_setup.exe" `
-            -OutFile "$temp\dd_vs_setup.exe"
-          
-          Write-Host "Updating the Visual Studio Installer..."
-          $exitCode = & "$temp\dd_vs_setup.exe" --update --quiet --wait | Out-Null
-          
-          Write-Host "Exit code: $exitCode"
-          
-          Write-Host "Downloading Visual Studio (${{env.VSVERSION}})..."
-          Invoke-WebRequest -UseBasicParsing `
-            -Uri "https://aka.ms/vs/${{env.VSVERSION}}/vs_community.exe" `
-            -OutFile "$temp\dd_vs_community.exe"
-          
-          Write-Host "Installing Visual Studio..."
-          $exitCode = & "$temp\dd_vs_community.exe" --quiet --norestart --wait `
-            --includeRecommended `
-            --add Microsoft.VisualStudio.Workload.NetCrossPlat `
-            --add Microsoft.VisualStudio.Workload.ManagedDesktop `
-            --add Microsoft.VisualStudio.Workload.Universal `
-            | Out-Null
-          
-          Write-Host "Exit code: $exitCode"
+          curl -o dotnet-install.sh -sSL https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1
+          sh dotnet-install.sh --version ${{env.DOTNETVERSION}}
+          dotnet --list-sdks 
       
       - name: Setup .NET SDK ${{env.DOTNETVERSION}}
         uses: actions/setup-dotnet@v1
