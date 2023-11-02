@@ -68,9 +68,9 @@ jobs:
           dotnet publish -f net8.0-windows10.0.19041.0 -c Release 
 
       - name : Build Android App
-        shell: bash
         run: |
-          dotnet publish -f:net8.0-android -c:Release
+          cd .\src\ThymeToPlant\ThymeToPlant
+          dotnet publish -f net8.0-android -c Release
             
       - uses: actions/upload-artifact@v2
         with:
