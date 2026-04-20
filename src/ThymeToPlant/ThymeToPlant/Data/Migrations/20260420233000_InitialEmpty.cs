@@ -23,8 +23,6 @@ public partial class InitialEmpty : Migration
     {
 #pragma warning disable 612, 618
         modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
-
-        modelBuilder.HasAnnotation("Relational:MaxIdentifierLength", 64);
 #pragma warning restore 612, 618
     }
 }
