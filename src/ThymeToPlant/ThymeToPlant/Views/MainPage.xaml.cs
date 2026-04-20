@@ -1,25 +1,13 @@
-﻿using ThymeToPlant.Services;
+﻿using ThymeToPlant.ViewModels;
 
 namespace ThymeToPlant.Views;
 
 public partial class MainPage : ContentPage
 {
-	private readonly PlantZoneService plantZoneService;
-
-	public MainPage()
+	public MainPage(MainPageViewModel viewModel)
 	{
 		InitializeComponent();
-		this.plantZoneService = MauiProgram.Services.GetService<PlantZoneService>();
+		BindingContext = viewModel;
 	}
-
-    async void FindPlantZoneButton_Clicked(System.Object sender, System.EventArgs e)
-    {
-		//TODO Add Null Check
-		var zipValue = ZipCodeEntry.Text;
-		var result = await plantZoneService.GetZoneByZip(zipValue);
-		//TODO Move to ViewModel, update via Binding or on MainThread
-		SearchResult.Text = result.Zone;
-    }
 }
-
 

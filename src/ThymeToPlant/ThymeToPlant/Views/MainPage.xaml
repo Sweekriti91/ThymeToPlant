@@ -22,20 +22,19 @@
                 HorizontalOptions="Center" />
 
             <Entry
-                x:Name="ZipCodeEntry"
                 Placeholder="enter zipcode"
-                HorizontalOptions="Center"/>
+                HorizontalOptions="Center"
+                Text="{Binding ZipCode}" />
 
             <Button
-                x:Name="FindPlantZoneButton"
                 Text="Find PlantZone"
                 HorizontalOptions="Center"
-                Clicked="FindPlantZoneButton_Clicked"/>
+                Command="{Binding FindPlantZoneCommand}" />
 
             <Label
-                x:Name="SearchResult"
                 HorizontalOptions="Center"
                 FontSize="28"
+                Text="{Binding SearchResult}"
                 TextColor="Green" />
 
             <!--<Button
@@ -52,4 +51,3 @@
     </ScrollView>
 
 </ContentPage>
-
