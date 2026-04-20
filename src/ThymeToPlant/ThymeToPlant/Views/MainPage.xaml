@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ThymeToPlant.Views.MainPage">
@@ -16,7 +16,7 @@
                 HorizontalOptions="Center" />
 
             <Label
-                Text="You are in ZoneB"
+                Text="{Binding SearchResult, StringFormat='You are in Zone {0}'}"
                 SemanticProperties.HeadingLevel="Level1"
                 FontSize="32"
                 HorizontalOptions="Center" />
