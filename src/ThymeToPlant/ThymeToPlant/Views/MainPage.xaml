@@ -39,10 +39,17 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <Entry
-                Placeholder="enter zipcode"
+            <HorizontalStackLayout
                 HorizontalOptions="Center"
-                Text="{Binding ZipCode}" />
+                Spacing="8">
+                <Entry
+                    Placeholder="enter zipcode"
+                    WidthRequest="160"
+                    Text="{Binding ZipCode}" />
+                <Button
+                    Text="Use my location"
+                    Command="{Binding UseMyLocationCommand}" />
+            </HorizontalStackLayout>
 
             <Button
                 Text="Find PlantZone"
@@ -53,6 +60,12 @@
                 IsRunning="{Binding IsBusy}"
                 IsVisible="{Binding IsBusy}"
                 HorizontalOptions="Center" />
+
+            <Label
+                HorizontalOptions="Center"
+                FontSize="14"
+                Text="{Binding LocationStatusMessage}"
+                TextColor="DarkRed" />
 
             <Label
                 HorizontalOptions="Center"
