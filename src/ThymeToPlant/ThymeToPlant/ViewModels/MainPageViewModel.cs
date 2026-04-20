@@ -54,7 +54,7 @@ public partial class MainPageViewModel : ObservableObject
     private string zoneTemperatureRange = string.Empty;
 
     [ObservableProperty]
-    private string zoneLastUpdated = string.Empty;
+    private string zoneSearchedAt = string.Empty;
 
     [ObservableProperty]
     private string zoneDescription = string.Empty;
@@ -125,7 +125,6 @@ public partial class MainPageViewModel : ObservableObject
             return;
         }
 
-<<<<<<< HEAD
         try
         {
             var cachedZoneData = JsonSerializer.Deserialize<PlantZoneDataItem>(cachedZoneJson);
@@ -150,17 +149,8 @@ public partial class MainPageViewModel : ObservableObject
     {
         ZoneCode = zoneData.Zone ?? string.Empty;
         ZoneTemperatureRange = zoneData.TemperatureRange ?? string.Empty;
-        ZoneLastUpdated = DateTimeOffset.UtcNow.ToString(LastUpdatedDisplayFormat);
+        ZoneSearchedAt = DateTimeOffset.UtcNow.ToString(LastUpdatedDisplayFormat);
         ZoneDescription = GetZoneDescription(ZoneCode);
-=======
-        var result = await plantZoneService.GetZoneByZip(ZipCode);
-        var zone = result?.Zone ?? string.Empty;
-        SearchResult = zone;
-        ZoneCode = zone;
-        ZoneTemperatureRange = result?.TemperatureRange ?? string.Empty;
-        ZoneLastUpdated = string.IsNullOrEmpty(zone) ? string.Empty : DateTimeOffset.UtcNow.ToString(LastUpdatedDisplayFormat);
-        ZoneDescription = GetZoneDescription(zone);
->>>>>>> 857dd48 (chore: address validation feedback for zone card)
     }
 
     private static string GetZoneDescription(string zoneCode)
@@ -170,7 +160,7 @@ public partial class MainPageViewModel : ObservableObject
             return string.Empty;
         }
 
-        var zoneDigits = new string(zoneCode.TakeWhile(char.IsDigit).ToArray());
+        var zoneDigits = string.Concat(zoneCode.TakeWhile(char.IsDigit));
 
         if (int.TryParse(zoneDigits, out var zoneNumber) && ZoneDescriptions.TryGetValue(zoneNumber, out var description))
         {
@@ -184,7 +174,7 @@ public partial class MainPageViewModel : ObservableObject
     {
         ZoneCode = string.Empty;
         ZoneTemperatureRange = string.Empty;
-        ZoneLastUpdated = string.Empty;
+        ZoneSearchedAt = string.Empty;
         ZoneDescription = string.Empty;
     }
 }

@@ -45,7 +45,7 @@ public class Tests
         Assert.That(vm.ZoneCode, Is.EqualTo("6B"));
         Assert.That(vm.ZoneTemperatureRange, Is.EqualTo("-10°F to 0°F"));
         Assert.That(vm.ZoneDescription, Is.EqualTo("Mild-temperate zones with moderate winters and broad plant options."));
-        Assert.That(vm.ZoneLastUpdated, Is.Not.Empty);
+        Assert.That(vm.ZoneSearchedAt, Is.Not.Empty);
         Assert.That(fakeService.LastZip, Is.EqualTo("97214"));
         Assert.That(fakeService.Calls, Is.EqualTo(1));
         Assert.That(vm.ErrorMessage, Is.EqualTo(string.Empty));
@@ -69,7 +69,7 @@ public class Tests
         Assert.That(vm.HasError, Is.True);
         Assert.That(vm.ZoneCode, Is.EqualTo(string.Empty));
         Assert.That(vm.ZoneTemperatureRange, Is.EqualTo(string.Empty));
-        Assert.That(vm.ZoneLastUpdated, Is.EqualTo(string.Empty));
+        Assert.That(vm.ZoneSearchedAt, Is.EqualTo(string.Empty));
         Assert.That(vm.ZoneDescription, Is.EqualTo(string.Empty));
         Assert.That(fakeService.Calls, Is.EqualTo(0));
 
@@ -81,7 +81,7 @@ public class Tests
         Assert.That(vm.HasError, Is.True);
         Assert.That(vm.ZoneCode, Is.EqualTo(string.Empty));
         Assert.That(vm.ZoneTemperatureRange, Is.EqualTo(string.Empty));
-        Assert.That(vm.ZoneLastUpdated, Is.EqualTo(string.Empty));
+        Assert.That(vm.ZoneSearchedAt, Is.EqualTo(string.Empty));
         Assert.That(vm.ZoneDescription, Is.EqualTo(string.Empty));
         Assert.That(fakeService.Calls, Is.EqualTo(1));
         Assert.That(fakeService.LastZip, Is.EqualTo("00000"));

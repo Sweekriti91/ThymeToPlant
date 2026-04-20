@@ -32,7 +32,7 @@
                     <Label
                         Text="{Binding ZoneTemperatureRange, StringFormat='Temperature Range: {0}'}" />
                     <Label
-                        Text="{Binding ZoneLastUpdated, StringFormat='Last Updated: {0}'}" />
+                        Text="{Binding ZoneSearchedAt, StringFormat='Last Updated: {0}'}" />
                     <Label
                         Text="{Binding ZoneDescription, StringFormat='Description: {0}'}"
                         LineBreakMode="WordWrap" />
