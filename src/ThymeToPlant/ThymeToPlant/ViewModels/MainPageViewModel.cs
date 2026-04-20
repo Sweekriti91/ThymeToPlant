@@ -9,10 +9,10 @@ public partial class MainPageViewModel : ObservableObject
     private readonly PlantZoneService plantZoneService;
 
     [ObservableProperty]
-    private string zipCode;
+    private string zipCode = string.Empty;
 
     [ObservableProperty]
-    private string searchResult;
+    private string searchResult = string.Empty;
 
     public MainPageViewModel(PlantZoneService plantZoneService)
     {
@@ -22,7 +22,13 @@ public partial class MainPageViewModel : ObservableObject
     [RelayCommand]
     private async Task FindPlantZone()
     {
+        if (string.IsNullOrWhiteSpace(ZipCode))
+        {
+            SearchResult = string.Empty;
+            return;
+        }
+
         var result = await plantZoneService.GetZoneByZip(ZipCode);
-        SearchResult = result?.Zone;
+        SearchResult = result?.Zone ?? string.Empty;
     }
 }
