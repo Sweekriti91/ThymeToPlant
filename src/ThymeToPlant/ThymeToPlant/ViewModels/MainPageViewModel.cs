@@ -53,7 +53,12 @@ public partial class MainPageViewModel : ObservableObject
                 ErrorMessage = "Could not find a plant zone. Check the ZIP code and try again.";
             }
         }
-        catch
+        catch (HttpRequestException)
+        {
+            SearchResult = string.Empty;
+            ErrorMessage = "Unable to look up plant zone right now. Please try again.";
+        }
+        catch (TaskCanceledException)
         {
             SearchResult = string.Empty;
             ErrorMessage = "Unable to look up plant zone right now. Please try again.";

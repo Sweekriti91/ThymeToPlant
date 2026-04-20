@@ -88,7 +88,7 @@ public class Tests
     [Test]
     public async Task FindPlantZoneCommand_IsBusyWhileLookupInProgress()
     {
-        var lookupGate = new TaskCompletionSource<PlantZoneDataItem?>();
+        var lookupGate = new TaskCompletionSource<PlantZoneDataItem>();
         var fakeService = new FakePlantZoneService(_ => lookupGate.Task);
         var vm = new MainPageViewModel(fakeService)
         {
@@ -121,14 +121,14 @@ public class Tests
 internal sealed class FakePlantZoneService : PlantZoneService
 {
     private readonly PlantZoneDataItem? response;
-    private readonly Func<string, Task<PlantZoneDataItem?>>? responseFactory;
+    private readonly Func<string, Task<PlantZoneDataItem>>? responseFactory;
 
     public FakePlantZoneService(PlantZoneDataItem? response)
     {
         this.response = response;
     }
 
-    public FakePlantZoneService(Func<string, Task<PlantZoneDataItem?>> responseFactory)
+    public FakePlantZoneService(Func<string, Task<PlantZoneDataItem>> responseFactory)
     {
         this.responseFactory = responseFactory;
     }
@@ -142,7 +142,7 @@ internal sealed class FakePlantZoneService : PlantZoneService
         LastZip = zipCode;
         if (responseFactory is not null)
         {
-            return responseFactory(zipCode)!;
+            return responseFactory(zipCode);
         }
 
         return Task.FromResult(response!);
