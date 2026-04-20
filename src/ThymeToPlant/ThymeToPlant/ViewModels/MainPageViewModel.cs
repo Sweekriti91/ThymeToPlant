@@ -11,6 +11,7 @@ public partial class MainPageViewModel : ObservableObject
 {
     private const string CachedZipCodeKey = "home.cachedZipCode";
     private const string CachedPlantZoneDataKey = "home.cachedPlantZoneData";
+    private const string LastUpdatedDisplayFormat = "yyyy-MM-dd HH:mm:ss 'UTC'";
 
     private static readonly Dictionary<int, string> ZoneDescriptions = new()
     {
@@ -124,6 +125,7 @@ public partial class MainPageViewModel : ObservableObject
             return;
         }
 
+<<<<<<< HEAD
         try
         {
             var cachedZoneData = JsonSerializer.Deserialize<PlantZoneDataItem>(cachedZoneJson);
@@ -148,8 +150,17 @@ public partial class MainPageViewModel : ObservableObject
     {
         ZoneCode = zoneData.Zone ?? string.Empty;
         ZoneTemperatureRange = zoneData.TemperatureRange ?? string.Empty;
-        ZoneLastUpdated = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd HH:mm:ss 'UTC'");
+        ZoneLastUpdated = DateTimeOffset.UtcNow.ToString(LastUpdatedDisplayFormat);
         ZoneDescription = GetZoneDescription(ZoneCode);
+=======
+        var result = await plantZoneService.GetZoneByZip(ZipCode);
+        var zone = result?.Zone ?? string.Empty;
+        SearchResult = zone;
+        ZoneCode = zone;
+        ZoneTemperatureRange = result?.TemperatureRange ?? string.Empty;
+        ZoneLastUpdated = string.IsNullOrEmpty(zone) ? string.Empty : DateTimeOffset.UtcNow.ToString(LastUpdatedDisplayFormat);
+        ZoneDescription = GetZoneDescription(zone);
+>>>>>>> 857dd48 (chore: address validation feedback for zone card)
     }
 
     private static string GetZoneDescription(string zoneCode)

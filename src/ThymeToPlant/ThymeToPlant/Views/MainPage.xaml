@@ -24,6 +24,7 @@
                 <VerticalStackLayout Spacing="8">
                     <Label
                         Text="USDA Zone Details"
+                        SemanticProperties.HeadingLevel="Level2"
                         FontSize="20"
                         FontAttributes="Bold" />
                     <Label
