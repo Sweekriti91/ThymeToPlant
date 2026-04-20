@@ -1,5 +1,6 @@
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Devices.Sensors;
+using System.Diagnostics;
 
 namespace ThymeToPlant.Services;
 
@@ -28,7 +29,13 @@ public class LocationZipService
             }
 
             var placemarks = await Geocoding.GetPlacemarksAsync(location.Latitude, location.Longitude);
-            var zipCode = placemarks?.FirstOrDefault(static placemark => !string.IsNullOrWhiteSpace(placemark.PostalCode))?.PostalCode;
+            if (placemarks is null || !placemarks.Any())
+            {
+                return LocationZipResult.Failure("Unable to determine ZIP code from your location.");
+            }
+
+            var placemarkWithPostalCode = placemarks.FirstOrDefault(static placemark => !string.IsNullOrWhiteSpace(placemark.PostalCode));
+            var zipCode = placemarkWithPostalCode?.PostalCode;
             if (string.IsNullOrWhiteSpace(zipCode))
             {
                 return LocationZipResult.Failure("Unable to determine ZIP code from your location.");
@@ -48,8 +55,9 @@ public class LocationZipService
         {
             return LocationZipResult.Failure("Location permission denied. Please enter a ZIP code.");
         }
-        catch
+        catch (Exception ex)
         {
+            Debug.WriteLine(ex);
             return LocationZipResult.Failure("Unable to use your location right now.");
         }
     }
