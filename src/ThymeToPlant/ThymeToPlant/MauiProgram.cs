@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ThymeToPlant.Data;
+using ThymeToPlant.Repositories;
 using ThymeToPlant.Services;
 using ThymeToPlant.ViewModels;
 using ThymeToPlant.Views;
@@ -28,6 +29,7 @@ builder.Logging.AddDebug();
         builder.Services.AddSingleton<PlantZoneService>();
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlite($"Data Source={AppDbContext.DbPath}"));
+        builder.Services.AddScoped<ISeedRepository, SeedRepository>();
         builder.Services.AddTransient<MainPageViewModel>();
         builder.Services.AddTransient<MainPage>();
 
