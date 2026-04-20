@@ -79,6 +79,6 @@ internal sealed class FakePlantZoneService : PlantZoneService
     {
         Calls++;
         LastZip = zipCode;
-        return Task.FromResult(response)!;
+        return Task.FromResult(response!);
     }
 }
