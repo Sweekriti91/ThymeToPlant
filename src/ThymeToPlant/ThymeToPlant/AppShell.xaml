@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="ThymeToPlant.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:ThymeToPlant.Views"
+    Shell.FlyoutBehavior="Disabled">
+
+
+    <TabBar>
+        <ShellContent
+            Title="Home"
+            ContentTemplate="{DataTemplate local:MainPage}"
+            Route="MainPage" />
+
+        <ShellContent
+            Title="Seed Library"
+            ContentTemplate="{DataTemplate local:SeedLibraryPage}"
+            Route="SeedLibraryPage" />
+
+        <ShellContent
+            Title="Plantbed Planner"
+            ContentTemplate="{DataTemplate local:PlantBedPage}"
+            Route="PlantBedPage" />
+
+    </TabBar>
+</Shell>
+

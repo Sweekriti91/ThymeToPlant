@@ -1,0 +1,72 @@
+name: windowsCI
+
+on:
+  # push:
+  #   branches: [ main ]
+  # pull_request:
+  #   branches: [ main ]
+
+  workflow_dispatch:
+
+env:
+    DOTNETVERSION: 10.0.103
+    VSVERSION: 2022/Preview
+
+permissions:
+  checks: write
+
+jobs:
+  buildMaui:
+    runs-on: windows-2022
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET SDK ${{ env.DOTNETVERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNETVERSION }}
+
+      - name: List installed .NET info
+        shell: pwsh
+        run: dotnet --info
+
+      - name: Restore .NET MAUI workloads
+        shell: pwsh
+        run: |
+          dotnet nuget locals all --clear
+          dotnet workload restore src/ThymeToPlant/ThymeToPlant.sln
+
+      - name: Restore NuGet packages
+        run: dotnet restore src/ThymeToPlant/ThymeToPlant.sln
+
+      - name: Run Unit Test
+        shell: bash
+        run: |
+          dotnet test src/ThymeToPlant/ThymeToTest/ThymeToTest.csproj --logger trx --configuration Debug --collect:"XPlat Code Coverage"
+
+      - name: Test Reporter
+        uses: dorny/test-reporter@v1.9.1
+        if: success() || failure()
+        with:
+          name: Unit Test Report
+          path: '**/*.trx'
+          reporter: dotnet-trx
+
+      # https://docs.microsoft.com/en-us/dotnet/maui/windows/deployment/overview
+      - name: Build Windows App
+        run: |
+          cd .\src\ThymeToPlant\ThymeToPlant
+          dotnet publish -f net10.0-windows10.0.19041.0 -c Release
+
+      - name: Build Android App
+        run: |
+          cd .\src\ThymeToPlant\ThymeToPlant
+          dotnet publish -f net10.0-android -c Release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-windows
+          path: |
+            **\*.msix
+            **\*.apk
