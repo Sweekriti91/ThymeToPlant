@@ -15,11 +15,28 @@
                 FontSize="32"
                 HorizontalOptions="Center" />
 
-            <Label
-                Text="{Binding SearchResult, StringFormat='You are in Zone {0}'}"
-                SemanticProperties.HeadingLevel="Level1"
-                FontSize="32"
-                HorizontalOptions="Center" />
+            <Frame
+                BorderColor="#4CAF50"
+                BackgroundColor="#F2FFF2"
+                CornerRadius="12"
+                Padding="16"
+                HasShadow="False">
+                <VerticalStackLayout Spacing="8">
+                    <Label
+                        Text="USDA Zone Details"
+                        FontSize="20"
+                        FontAttributes="Bold" />
+                    <Label
+                        Text="{Binding ZoneCode, StringFormat='Zone: {0}'}" />
+                    <Label
+                        Text="{Binding ZoneTemperatureRange, StringFormat='Temperature Range: {0}'}" />
+                    <Label
+                        Text="{Binding ZoneLastUpdated, StringFormat='Last Updated: {0}'}" />
+                    <Label
+                        Text="{Binding ZoneDescription, StringFormat='Description: {0}'}"
+                        LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Frame>
 
             <Entry
                 Placeholder="enter zipcode"
@@ -35,12 +52,6 @@
                 IsRunning="{Binding IsBusy}"
                 IsVisible="{Binding IsBusy}"
                 HorizontalOptions="Center" />
-
-            <Label
-                HorizontalOptions="Center"
-                FontSize="28"
-                Text="{Binding SearchResult}"
-                TextColor="Green" />
 
             <Label
                 HorizontalOptions="Center"

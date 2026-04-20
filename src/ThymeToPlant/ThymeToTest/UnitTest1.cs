@@ -32,7 +32,7 @@ public class Tests
     [Test]
     public async Task FindPlantZoneCommand_SetsSearchResult_WhenServiceReturnsZone()
     {
-        var fakeService = new FakePlantZoneService(new PlantZoneDataItem { Zone = "6B" });
+        var fakeService = new FakePlantZoneService(new PlantZoneDataItem { Zone = "6B", TemperatureRange = "-10°F to 0°F" });
         var fakePreferences = new FakePreferences();
         var vm = new MainPageViewModel(fakeService, fakePreferences)
         {
@@ -42,6 +42,10 @@ public class Tests
         await vm.FindPlantZoneCommand.ExecuteAsync(null);
 
         Assert.That(vm.SearchResult, Is.EqualTo("6B"));
+        Assert.That(vm.ZoneCode, Is.EqualTo("6B"));
+        Assert.That(vm.ZoneTemperatureRange, Is.EqualTo("-10°F to 0°F"));
+        Assert.That(vm.ZoneDescription, Is.EqualTo("Mild-temperate zones with moderate winters and broad plant options."));
+        Assert.That(vm.ZoneLastUpdated, Is.Not.Empty);
         Assert.That(fakeService.LastZip, Is.EqualTo("97214"));
         Assert.That(fakeService.Calls, Is.EqualTo(1));
         Assert.That(vm.ErrorMessage, Is.EqualTo(string.Empty));
@@ -63,6 +67,10 @@ public class Tests
         Assert.That(vm.SearchResult, Is.EqualTo(string.Empty));
         Assert.That(vm.ErrorMessage, Is.EqualTo("Please enter a valid ZIP code."));
         Assert.That(vm.HasError, Is.True);
+        Assert.That(vm.ZoneCode, Is.EqualTo(string.Empty));
+        Assert.That(vm.ZoneTemperatureRange, Is.EqualTo(string.Empty));
+        Assert.That(vm.ZoneLastUpdated, Is.EqualTo(string.Empty));
+        Assert.That(vm.ZoneDescription, Is.EqualTo(string.Empty));
         Assert.That(fakeService.Calls, Is.EqualTo(0));
 
         vm.ZipCode = "00000";
@@ -71,6 +79,10 @@ public class Tests
         Assert.That(vm.SearchResult, Is.EqualTo(string.Empty));
         Assert.That(vm.ErrorMessage, Is.EqualTo("Could not find a plant zone. Check the ZIP code and try again."));
         Assert.That(vm.HasError, Is.True);
+        Assert.That(vm.ZoneCode, Is.EqualTo(string.Empty));
+        Assert.That(vm.ZoneTemperatureRange, Is.EqualTo(string.Empty));
+        Assert.That(vm.ZoneLastUpdated, Is.EqualTo(string.Empty));
+        Assert.That(vm.ZoneDescription, Is.EqualTo(string.Empty));
         Assert.That(fakeService.Calls, Is.EqualTo(1));
         Assert.That(fakeService.LastZip, Is.EqualTo("00000"));
         Assert.That(fakePreferences.ContainsKey("home.cachedZipCode"), Is.False);
@@ -83,7 +95,7 @@ public class Tests
         var fakeService = new FakePlantZoneService((PlantZoneDataItem?)null);
         var fakePreferences = new FakePreferences();
         fakePreferences.Set("home.cachedZipCode", "97035");
-        fakePreferences.Set("home.cachedPlantZoneData", JsonSerializer.Serialize(new PlantZoneDataItem { Zone = "8B" }));
+        fakePreferences.Set("home.cachedPlantZoneData", JsonSerializer.Serialize(new PlantZoneDataItem { Zone = "8B", TemperatureRange = "15°F to 20°F" }));
 
         var vm = new MainPageViewModel(fakeService, fakePreferences);
 
@@ -91,6 +103,9 @@ public class Tests
 
         Assert.That(vm.ZipCode, Is.EqualTo("97035"));
         Assert.That(vm.SearchResult, Is.EqualTo("8B"));
+        Assert.That(vm.ZoneCode, Is.EqualTo("8B"));
+        Assert.That(vm.ZoneTemperatureRange, Is.EqualTo("15°F to 20°F"));
+        Assert.That(vm.ZoneDescription, Is.EqualTo("Warm-temperate regions with mild winters and hot summers."));
         Assert.That(fakeService.Calls, Is.EqualTo(0));
     }
 
@@ -110,6 +125,7 @@ public class Tests
         Assert.That(vm.ErrorMessage, Is.EqualTo("Unable to look up plant zone right now. Please try again."));
         Assert.That(vm.HasError, Is.True);
         Assert.That(vm.IsBusy, Is.False);
+        Assert.That(vm.ZoneCode, Is.EqualTo(string.Empty));
     }
 
     [Test]
@@ -134,6 +150,21 @@ public class Tests
 
         Assert.That(vm.IsBusy, Is.False);
         Assert.That(vm.FindPlantZoneCommand.CanExecute(null), Is.True);
+    }
+
+    [Test]
+    public async Task FindPlantZoneCommand_UsesZoneLookup_ForTwoDigitZones()
+    {
+        var fakeService = new FakePlantZoneService(new PlantZoneDataItem { Zone = "13A" });
+        var fakePreferences = new FakePreferences();
+        var vm = new MainPageViewModel(fakeService, fakePreferences)
+        {
+            ZipCode = "33101"
+        };
+
+        await vm.FindPlantZoneCommand.ExecuteAsync(null);
+
+        Assert.That(vm.ZoneDescription, Is.EqualTo("Hottest tropical climates with consistently high heat year-round."));
     }
 
     [Test]
