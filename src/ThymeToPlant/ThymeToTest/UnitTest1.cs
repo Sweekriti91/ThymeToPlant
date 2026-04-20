@@ -1,6 +1,7 @@
 using ThymeToPlant.Services;
 using ThymeToPlant.Models;
 using ThymeToPlant.ViewModels;
+using ThymeToPlant.Data;
 
 namespace ThymeToTest;
 
@@ -61,6 +62,14 @@ public class Tests
         Assert.That(fakeService.LastZip, Is.EqualTo("00000"));
     }
 
+    [Test]
+    public void GetDbPath_UsesProvidedBaseDirectory()
+    {
+        var basePath = "/tmp/testdb";
+        var dbPath = AppDbContext.GetDbPath(basePath);
+
+        Assert.That(dbPath, Is.EqualTo(Path.Combine(basePath, "thymetoplant.db")));
+    }
 }
 
 internal sealed class FakePlantZoneService : PlantZoneService
