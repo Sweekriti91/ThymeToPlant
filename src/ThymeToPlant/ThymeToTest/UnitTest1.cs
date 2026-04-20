@@ -74,6 +74,7 @@ public class Tests
         Assert.That(fakeService.Calls, Is.EqualTo(1));
         Assert.That(fakeService.LastZip, Is.EqualTo("00000"));
         Assert.That(fakePreferences.ContainsKey("home.cachedZipCode"), Is.False);
+        Assert.That(fakePreferences.ContainsKey("home.cachedPlantZoneData"), Is.False);
     }
 
     [Test]
