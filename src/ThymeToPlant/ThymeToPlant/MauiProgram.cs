@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using ThymeToPlant.Services;
+using ThymeToPlant.ViewModels;
+using ThymeToPlant.Views;
 
 namespace ThymeToPlant;
 
@@ -20,8 +22,10 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 
-        // Services Registration
+        // MVVM + DI pattern: register services, then view models, then pages for constructor injection and reusable binding patterns.
         builder.Services.AddSingleton<PlantZoneService>();
+        builder.Services.AddTransient<MainPageViewModel>();
+        builder.Services.AddTransient<MainPage>();
 
         App = builder.Build();
 
@@ -33,4 +37,3 @@ public static class MauiProgram
     public static IServiceProvider Services
     => App.Services;
 }
-
