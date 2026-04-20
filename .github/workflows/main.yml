@@ -9,52 +9,44 @@ on:
   workflow_dispatch:
 
 env:
-    DOTNETVERSION: 8.0.100-rc.2.23502.2
+    DOTNETVERSION: 10.0.103
     VSVERSION: 2022/Preview
 
 permissions:
   checks: write
-  
+
 jobs:
   buildMaui:
     runs-on: windows-2022
-    
-    steps:
-      - uses: actions/checkout@v2
 
-      - name: Install .NET 8
-        shell: pwsh
-        run: |
-          curl -o dotnet-install.sh -sSL https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1
-          sh dotnet-install.sh --version ${{env.DOTNETVERSION}}
-          dotnet --list-sdks 
-      
-      - name: Setup .NET SDK ${{env.DOTNETVERSION}}
-        uses: actions/setup-dotnet@v1
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET SDK ${{ env.DOTNETVERSION }}
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '${{env.DOTNETVERSION}}'
-          
+          dotnet-version: ${{ env.DOTNETVERSION }}
+
       - name: List installed .NET info
         shell: pwsh
         run: dotnet --info
 
-      - name: Install .NET MAUI
+      - name: Restore .NET MAUI workloads
         shell: pwsh
         run: |
-          & dotnet nuget locals all --clear
-          & dotnet workload install maui android
+          dotnet nuget locals all --clear
+          dotnet workload restore src/ThymeToPlant/ThymeToPlant.sln
 
-      - name: Restore nuget packages
-        run: |
-          src/ThymeToPlant/ThymeToPlant.sln
+      - name: Restore NuGet packages
+        run: dotnet restore src/ThymeToPlant/ThymeToPlant.sln
 
       - name: Run Unit Test
         shell: bash
         run: |
           dotnet test src/ThymeToPlant/ThymeToTest/ThymeToTest.csproj --logger trx --configuration Debug --collect:"XPlat Code Coverage"
-      
+
       - name: Test Reporter
-        uses: dorny/test-reporter@v1.7.0
+        uses: dorny/test-reporter@v1.9.1
         if: success() || failure()
         with:
           name: Unit Test Report
@@ -65,17 +57,16 @@ jobs:
       - name: Build Windows App
         run: |
           cd .\src\ThymeToPlant\ThymeToPlant
-          dotnet publish -f net8.0-windows10.0.19041.0 -c Release 
+          dotnet publish -f net10.0-windows10.0.19041.0 -c Release
 
-      - name : Build Android App
+      - name: Build Android App
         run: |
           cd .\src\ThymeToPlant\ThymeToPlant
-          dotnet publish -f net8.0-android -c Release
-            
-      - uses: actions/upload-artifact@v2
+          dotnet publish -f net10.0-android -c Release
+
+      - uses: actions/upload-artifact@v4
         with:
           name: artifacts-windows
           path: |
             **\*.msix
             **\*.apk
-          

@@ -29,7 +29,7 @@ public static class MauiProgram
     }
 
 	//Helpers
-    public static MauiApp App { get; private set; }
+    public static MauiApp App { get; private set; } = default!;
     public static IServiceProvider Services
     => App.Services;
 }

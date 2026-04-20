@@ -9,7 +9,7 @@ public partial class MainPage : ContentPage
 	public MainPage()
 	{
 		InitializeComponent();
-		this.plantZoneService = MauiProgram.Services.GetService<PlantZoneService>();
+		this.plantZoneService = MauiProgram.Services.GetRequiredService<PlantZoneService>();
 	}
 
     async void FindPlantZoneButton_Clicked(System.Object sender, System.EventArgs e)
@@ -18,7 +18,7 @@ public partial class MainPage : ContentPage
 		var zipValue = ZipCodeEntry.Text;
 		var result = await plantZoneService.GetZoneByZip(zipValue);
 		//TODO Move to ViewModel, update via Binding or on MainThread
-		SearchResult.Text = result.Zone;
+		SearchResult.Text = result?.Zone ?? string.Empty;
     }
 }
 

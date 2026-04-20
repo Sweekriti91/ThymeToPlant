@@ -3,8 +3,8 @@
 
 variables:
     BuildConfiguration: Release
-    DotNetVersion: 8.0.100-rc.2.23502.2
-    VSVERSION: 2022/Preview
+    DotNetVersion: 10.0.103
+    VSVERSION: 2022
 
 stages:
 - stage: BuildAndroid
@@ -15,32 +15,22 @@ stages:
       vmImage: 'windows-2022'
       demands:
       - MSBuild
-      
-    steps:
-    
 
-    - task: Bash@3
-      displayName: Install .NET 8
-      inputs:
-        targetType: 'inline'
-        script: |
-          curl -o dotnet-install.sh -sSL https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.sh
-          sh dotnet-install.sh --version $(DotNetVersion)
-          dotnet --list-sdks
+    steps:
 
     - task: UseDotNet@2
-      displayName: .NET Version
+      displayName: Install .NET $(DotNetVersion)
       inputs:
         packageType: 'sdk'
         version: '$(DotNetVersion)'
-    
+
     - task: PowerShell@2
-      displayName: Install .NET MAUI
+      displayName: Restore .NET MAUI Workloads
       inputs:
         targetType: 'inline'
         script: |
           & dotnet nuget locals all --clear
-          & dotnet workload install maui android
+          & dotnet workload restore src/ThymeToPlant/ThymeToPlant.sln
 
     - task: Bash@3
       displayName: Run Unit Test
@@ -58,12 +48,11 @@ stages:
           **/*.trx
 
      # Publish code coverage report to the pipeline
-    - task: PublishCodeCoverageResults@1
+    - task: PublishCodeCoverageResults@2
       condition: succeededOrFailed()
       displayName: 'Publish code coverage'
       inputs:
-        codeCoverageTool: Cobertura
-        summaryFileLocation: $(System.DefaultWorkingDirectory)/**/*.cobertura.xml 
+        summaryFileLocation: $(System.DefaultWorkingDirectory)/**/*.cobertura.xml
 
   # https://docs.microsoft.com/en-us/dotnet/maui/android/deployment/overview
     - task: Bash@3
@@ -71,29 +60,29 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          dotnet publish src/ThymeToPlant/ThymeToPlant/ThymeToPlant.csproj -f net8.0-android -c Release
+          dotnet publish src/ThymeToPlant/ThymeToPlant/ThymeToPlant.csproj -f net10.0-android -c Release
 
     # Signing Android App : https://docs.microsoft.com/en-us/azure/devops/pipelines/apps/mobile/app-signing?view=azure-devops&tabs=apple-install-during-build#sign-your-android-app
 
     - task: CopyFiles@2
       inputs:
         Contents: |
-          src/ThymeToPlant/ThymeToPlant\bin\Release\net8.0-android\publish\*.apk
+          src/ThymeToPlant/ThymeToPlant\bin\Release\net10.0-android\publish\*.apk
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-    
+
   #   # https://docs.microsoft.com/en-us/dotnet/maui/windows/deployment/overview
     - task: PowerShell@2
       displayName: Build Windows MSIX
       inputs:
         targetType: 'inline'
         script: |
-          dotnet publish src/ThymeToPlant/ThymeToPlant/ThymeToPlant.csproj -f net8.0-windows10.0.19041.0 -c Release
+          dotnet publish src/ThymeToPlant/ThymeToPlant/ThymeToPlant.csproj -f net10.0-windows10.0.19041.0 -c Release
 
     - task: CopyFiles@2
       inputs:
         Contents: |
-          src/ThymeToPlant/ThymeToPlant\bin\Release\net8.0-windows10.0.19041.0\win10-x64/**/*.msix
+          src/ThymeToPlant/ThymeToPlant\bin\Release\net10.0-windows10.0.19041.0\win10-x64/**/*.msix
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
     - task: PublishBuildArtifacts@1

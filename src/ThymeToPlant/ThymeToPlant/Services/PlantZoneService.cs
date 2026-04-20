@@ -14,13 +14,12 @@ namespace ThymeToPlant.Services
             this.httpClient = new HttpClient() { BaseAddress = new Uri("https://phzmapi.org/") };
         }
 
-        public async Task<PlantZoneDataItem> GetZoneByZip(string zipCode)
+        public async Task<PlantZoneDataItem?> GetZoneByZip(string zipCode)
         {
             var response = await httpClient.GetAsync($"{zipCode}.json");
             if (response.IsSuccessStatusCode)
             {
-                var responseData = await response.Content.ReadFromJsonAsync<PlantZoneDataItem>();
-                return responseData;
+                return await response.Content.ReadFromJsonAsync<PlantZoneDataItem>();
             }
 
             return null;

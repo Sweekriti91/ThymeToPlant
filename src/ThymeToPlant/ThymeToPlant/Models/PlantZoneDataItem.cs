@@ -10,13 +10,13 @@ namespace ThymeToPlant.Models
     public partial class PlantZoneDataItem
     {
         [JsonPropertyName("zone")]
-        public string Zone { get; set; }
+        public string Zone { get; set; } = string.Empty;
 
         [JsonPropertyName("coordinates")]
-        public Coordinates Coordinates { get; set; }
+        public Coordinates Coordinates { get; set; } = new();
 
         [JsonPropertyName("temperature_range")]
-        public string TemperatureRange { get; set; }
+        public string TemperatureRange { get; set; } = string.Empty;
     }
 
     public partial class Coordinates

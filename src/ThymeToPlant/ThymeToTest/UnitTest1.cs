@@ -21,7 +21,7 @@ public class Tests
         var mathy = new FakeTestService();
         var result = mathy.AddMe(1, 2);
 
-        Assert.That(3, Is.EqualTo(result));
+        Assert.That(result, Is.EqualTo(3));
     }
 
 
