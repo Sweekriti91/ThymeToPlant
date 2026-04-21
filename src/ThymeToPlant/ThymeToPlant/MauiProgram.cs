@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Storage;
 using ThymeToPlant.Data;
 using ThymeToPlant.Repositories;
 using ThymeToPlant.Services;
@@ -27,6 +28,7 @@ builder.Logging.AddDebug();
 
         // MVVM + DI pattern: register services, then view models, then pages for constructor injection and reusable binding patterns.
         builder.Services.AddSingleton<PlantZoneService>();
+        builder.Services.AddSingleton<IPreferences>(_ => Preferences.Default);
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlite($"Data Source={AppDbContext.DbPath}"));
         builder.Services.AddScoped<ISeedRepository, SeedRepository>();

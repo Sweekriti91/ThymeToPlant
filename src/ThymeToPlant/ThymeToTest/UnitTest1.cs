@@ -2,6 +2,8 @@ using ThymeToPlant.Services;
 using ThymeToPlant.Models;
 using ThymeToPlant.ViewModels;
 using ThymeToPlant.Data;
+using Microsoft.Maui.Storage;
+using System.Text.Json;
 
 namespace ThymeToTest;
 
@@ -31,7 +33,8 @@ public class Tests
     public async Task FindPlantZoneCommand_SetsSearchResult_WhenServiceReturnsZone()
     {
         var fakeService = new FakePlantZoneService(new PlantZoneDataItem { Zone = "6B" });
-        var vm = new MainPageViewModel(fakeService)
+        var fakePreferences = new FakePreferences();
+        var vm = new MainPageViewModel(fakeService, fakePreferences)
         {
             ZipCode = "97214"
         };
@@ -43,13 +46,17 @@ public class Tests
         Assert.That(fakeService.Calls, Is.EqualTo(1));
         Assert.That(vm.ErrorMessage, Is.EqualTo(string.Empty));
         Assert.That(vm.HasError, Is.False);
+        Assert.That(fakePreferences.Get("home.cachedZipCode", string.Empty), Is.EqualTo("97214"));
+        var cachedZone = JsonSerializer.Deserialize<PlantZoneDataItem>(fakePreferences.Get("home.cachedPlantZoneData", string.Empty));
+        Assert.That(cachedZone?.Zone, Is.EqualTo("6B"));
     }
 
     [Test]
     public async Task FindPlantZoneCommand_HandlesEmptyZipAndNullServiceResult()
     {
         var fakeService = new FakePlantZoneService((PlantZoneDataItem?)null);
-        var vm = new MainPageViewModel(fakeService);
+        var fakePreferences = new FakePreferences();
+        var vm = new MainPageViewModel(fakeService, fakePreferences);
 
         await vm.FindPlantZoneCommand.ExecuteAsync(null);
 
@@ -66,13 +73,33 @@ public class Tests
         Assert.That(vm.HasError, Is.True);
         Assert.That(fakeService.Calls, Is.EqualTo(1));
         Assert.That(fakeService.LastZip, Is.EqualTo("00000"));
+        Assert.That(fakePreferences.ContainsKey("home.cachedZipCode"), Is.False);
+        Assert.That(fakePreferences.ContainsKey("home.cachedPlantZoneData"), Is.False);
+    }
+
+    [Test]
+    public void RestoreCachedZoneCommand_LoadsCachedZipAndZone()
+    {
+        var fakeService = new FakePlantZoneService((PlantZoneDataItem?)null);
+        var fakePreferences = new FakePreferences();
+        fakePreferences.Set("home.cachedZipCode", "97035");
+        fakePreferences.Set("home.cachedPlantZoneData", JsonSerializer.Serialize(new PlantZoneDataItem { Zone = "8B" }));
+
+        var vm = new MainPageViewModel(fakeService, fakePreferences);
+
+        vm.RestoreCachedZoneCommand.Execute(null);
+
+        Assert.That(vm.ZipCode, Is.EqualTo("97035"));
+        Assert.That(vm.SearchResult, Is.EqualTo("8B"));
+        Assert.That(fakeService.Calls, Is.EqualTo(0));
     }
 
     [Test]
     public async Task FindPlantZoneCommand_SetsError_WhenServiceThrows()
     {
         var fakeService = new FakePlantZoneService(_ => throw new HttpRequestException("network down"));
-        var vm = new MainPageViewModel(fakeService)
+        var fakePreferences = new FakePreferences();
+        var vm = new MainPageViewModel(fakeService, fakePreferences)
         {
             ZipCode = "97214"
         };
@@ -90,7 +117,8 @@ public class Tests
     {
         var lookupGate = new TaskCompletionSource<PlantZoneDataItem>();
         var fakeService = new FakePlantZoneService(_ => lookupGate.Task);
-        var vm = new MainPageViewModel(fakeService)
+        var fakePreferences = new FakePreferences();
+        var vm = new MainPageViewModel(fakeService, fakePreferences)
         {
             ZipCode = "97214"
         };
@@ -115,6 +143,32 @@ public class Tests
         var dbPath = AppDbContext.GetDbPath(basePath);
 
         Assert.That(dbPath, Is.EqualTo(Path.Combine(basePath, "thymetoplant.db")));
+    }
+}
+
+internal sealed class FakePreferences : IPreferences
+{
+    private readonly Dictionary<string, object> store = new();
+
+    public bool ContainsKey(string key, string? sharedName = null) => store.ContainsKey(key);
+
+    public void Remove(string key, string? sharedName = null) => store.Remove(key);
+
+    public void Clear(string? sharedName = null) => store.Clear();
+
+    public void Set<T>(string key, T value, string? sharedName = null)
+    {
+        store[key] = value!;
+    }
+
+    public T Get<T>(string key, T defaultValue, string? sharedName = null)
+    {
+        if (store.TryGetValue(key, out var value) && value is T typedValue)
+        {
+            return typedValue;
+        }
+
+        return defaultValue;
     }
 }
 
