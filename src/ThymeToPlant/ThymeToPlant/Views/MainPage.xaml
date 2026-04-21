@@ -31,11 +31,23 @@
                 HorizontalOptions="Center"
                 Command="{Binding FindPlantZoneCommand}" />
 
+            <ActivityIndicator
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                HorizontalOptions="Center" />
+
             <Label
                 HorizontalOptions="Center"
                 FontSize="28"
                 Text="{Binding SearchResult}"
                 TextColor="Green" />
+
+            <Label
+                HorizontalOptions="Center"
+                FontSize="18"
+                Text="{Binding ErrorMessage}"
+                IsVisible="{Binding HasError}"
+                TextColor="Red" />
 
             <!--<Button
                 x:Name="AIPlantingZone"
