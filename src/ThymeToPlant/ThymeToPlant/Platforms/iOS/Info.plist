@@ -28,5 +28,7 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>ThymeToPlant uses your location to detect your ZIP code and find your plant zone.</string>
 </dict>
 </plist>

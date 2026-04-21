@@ -11,24 +11,25 @@ namespace ThymeToPlant;
 
 public static class MauiProgram
 {
-public static MauiApp CreateMauiApp()
-{
-var builder = MauiApp.CreateBuilder();
-builder
-.UseMauiApp<App>()
-.ConfigureFonts(fonts =>
-{
-fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-});
+    public static MauiApp CreateMauiApp()
+    {
+        var builder = MauiApp.CreateBuilder();
+        builder
+            .UseMauiApp<App>()
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+            });
 
 #if DEBUG
-builder.Logging.AddDebug();
+        builder.Logging.AddDebug();
 #endif
 
         // MVVM + DI pattern: register services, then view models, then pages for constructor injection and reusable binding patterns.
         builder.Services.AddSingleton<PlantZoneService>();
         builder.Services.AddSingleton<IPreferences>(_ => Preferences.Default);
+        builder.Services.AddSingleton<LocationZipService>();
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlite($"Data Source={AppDbContext.DbPath}"));
         builder.Services.AddScoped<ISeedRepository, SeedRepository>();
@@ -48,7 +49,7 @@ builder.Logging.AddDebug();
         dbContext.Database.Migrate();
     }
 
-//Helpers
+    //Helpers
     public static MauiApp App { get; private set; }
     public static IServiceProvider Services
     => App.Services;

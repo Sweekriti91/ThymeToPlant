@@ -34,7 +34,7 @@ public class Tests
     {
         var fakeService = new FakePlantZoneService(new PlantZoneDataItem { Zone = "6B", TemperatureRange = "-10°F to 0°F" });
         var fakePreferences = new FakePreferences();
-        var vm = new MainPageViewModel(fakeService, fakePreferences)
+        var vm = new MainPageViewModel(fakeService, fakePreferences, new FakeLocationZipService(LocationZipResult.Success("99999")))
         {
             ZipCode = "97214"
         };
@@ -60,7 +60,7 @@ public class Tests
     {
         var fakeService = new FakePlantZoneService((PlantZoneDataItem?)null);
         var fakePreferences = new FakePreferences();
-        var vm = new MainPageViewModel(fakeService, fakePreferences);
+        var vm = new MainPageViewModel(fakeService, fakePreferences, new FakeLocationZipService(LocationZipResult.Success("99999")));
 
         await vm.FindPlantZoneCommand.ExecuteAsync(null);
 
@@ -97,7 +97,7 @@ public class Tests
         fakePreferences.Set("home.cachedZipCode", "97035");
         fakePreferences.Set("home.cachedPlantZoneData", JsonSerializer.Serialize(new PlantZoneDataItem { Zone = "8B", TemperatureRange = "15°F to 20°F" }));
 
-        var vm = new MainPageViewModel(fakeService, fakePreferences);
+        var vm = new MainPageViewModel(fakeService, fakePreferences, new FakeLocationZipService(LocationZipResult.Success("99999")));
 
         vm.RestoreCachedZoneCommand.Execute(null);
 
@@ -114,7 +114,7 @@ public class Tests
     {
         var fakeService = new FakePlantZoneService(_ => throw new HttpRequestException("network down"));
         var fakePreferences = new FakePreferences();
-        var vm = new MainPageViewModel(fakeService, fakePreferences)
+        var vm = new MainPageViewModel(fakeService, fakePreferences, new FakeLocationZipService(LocationZipResult.Success("99999")))
         {
             ZipCode = "97214"
         };
@@ -134,7 +134,7 @@ public class Tests
         var lookupGate = new TaskCompletionSource<PlantZoneDataItem>();
         var fakeService = new FakePlantZoneService(_ => lookupGate.Task);
         var fakePreferences = new FakePreferences();
-        var vm = new MainPageViewModel(fakeService, fakePreferences)
+        var vm = new MainPageViewModel(fakeService, fakePreferences, new FakeLocationZipService(LocationZipResult.Success("99999")))
         {
             ZipCode = "97214"
         };
@@ -157,7 +157,7 @@ public class Tests
     {
         var fakeService = new FakePlantZoneService(new PlantZoneDataItem { Zone = "13A" });
         var fakePreferences = new FakePreferences();
-        var vm = new MainPageViewModel(fakeService, fakePreferences)
+        var vm = new MainPageViewModel(fakeService, fakePreferences, new FakeLocationZipService(LocationZipResult.Success("99999")))
         {
             ZipCode = "33101"
         };
@@ -174,6 +174,36 @@ public class Tests
         var dbPath = AppDbContext.GetDbPath(basePath);
 
         Assert.That(dbPath, Is.EqualTo(Path.Combine(basePath, "thymetoplant.db")));
+    }
+
+    [Test]
+    public async Task UseMyLocationCommand_SetsZipAndSearches_WhenLocationLookupSucceeds()
+    {
+        var fakeService = new FakePlantZoneService(new PlantZoneDataItem { Zone = "7A" });
+        var fakeLocationZipService = new FakeLocationZipService(LocationZipResult.Success("97214"));
+        var vm = new MainPageViewModel(fakeService, new FakePreferences(), fakeLocationZipService);
+
+        await vm.UseMyLocationCommand.ExecuteAsync(null);
+
+        Assert.That(vm.ZipCode, Is.EqualTo("97214"));
+        Assert.That(vm.SearchResult, Is.EqualTo("7A"));
+        Assert.That(vm.LocationStatusMessage, Is.EqualTo(string.Empty));
+        Assert.That(fakeService.Calls, Is.EqualTo(1));
+        Assert.That(fakeService.LastZip, Is.EqualTo("97214"));
+    }
+
+    [Test]
+    public async Task UseMyLocationCommand_SetsError_WhenPermissionDenied()
+    {
+        var fakeService = new FakePlantZoneService(new PlantZoneDataItem { Zone = "7A" });
+        var fakeLocationZipService = new FakeLocationZipService(LocationZipResult.Failure("Location permission denied. Please enter a ZIP code."));
+        var vm = new MainPageViewModel(fakeService, new FakePreferences(), fakeLocationZipService);
+
+        await vm.UseMyLocationCommand.ExecuteAsync(null);
+
+        Assert.That(vm.LocationStatusMessage, Is.EqualTo("Location permission denied. Please enter a ZIP code."));
+        Assert.That(vm.SearchResult, Is.EqualTo(string.Empty));
+        Assert.That(fakeService.Calls, Is.EqualTo(0));
     }
 }
 
@@ -231,5 +261,20 @@ internal sealed class FakePlantZoneService : PlantZoneService
         }
 
         return Task.FromResult(response!);
+    }
+}
+
+internal sealed class FakeLocationZipService : LocationZipService
+{
+    private readonly LocationZipResult result;
+
+    public FakeLocationZipService(LocationZipResult result)
+    {
+        this.result = result;
+    }
+
+    public override Task<LocationZipResult> GetCurrentZipAsync()
+    {
+        return Task.FromResult(result);
     }
 }

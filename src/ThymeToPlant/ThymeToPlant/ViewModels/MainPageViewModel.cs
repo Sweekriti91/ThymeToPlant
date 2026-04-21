@@ -32,6 +32,7 @@ public partial class MainPageViewModel : ObservableObject
 
     private readonly PlantZoneService plantZoneService;
     private readonly IPreferences preferences;
+    private readonly LocationZipService locationZipService;
 
     [ObservableProperty]
     private string zipCode = string.Empty;
@@ -45,6 +46,7 @@ public partial class MainPageViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(FindPlantZoneCommand))]
+    [NotifyCanExecuteChangedFor(nameof(UseMyLocationCommand))]
     private bool isBusy;
 
     [ObservableProperty]
@@ -59,12 +61,16 @@ public partial class MainPageViewModel : ObservableObject
     [ObservableProperty]
     private string zoneDescription = string.Empty;
 
+    [ObservableProperty]
+    private string locationStatusMessage = string.Empty;
+
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
 
-    public MainPageViewModel(PlantZoneService plantZoneService, IPreferences preferences)
+    public MainPageViewModel(PlantZoneService plantZoneService, IPreferences preferences, LocationZipService locationZipService)
     {
         this.plantZoneService = plantZoneService;
         this.preferences = preferences;
+        this.locationZipService = locationZipService;
     }
 
     private bool CanFindPlantZone() => !IsBusy;
@@ -143,6 +149,21 @@ public partial class MainPageViewModel : ObservableObject
             SearchResult = string.Empty;
             ClearZoneDetails();
         }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanFindPlantZone))]
+    private async Task UseMyLocation()
+    {
+        LocationStatusMessage = string.Empty;
+        var locationZipResult = await locationZipService.GetCurrentZipAsync();
+        if (!locationZipResult.IsSuccess)
+        {
+            LocationStatusMessage = locationZipResult.ErrorMessage;
+            return;
+        }
+
+        ZipCode = locationZipResult.ZipCode;
+        await FindPlantZone();
     }
 
     private void ApplyZoneDetails(PlantZoneDataItem zoneData)
