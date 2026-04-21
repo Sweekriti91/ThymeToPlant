@@ -11,6 +11,24 @@ public partial class MainPageViewModel : ObservableObject
 {
     private const string CachedZipCodeKey = "home.cachedZipCode";
     private const string CachedPlantZoneDataKey = "home.cachedPlantZoneData";
+    private const string LastUpdatedDisplayFormat = "yyyy-MM-dd HH:mm:ss 'UTC'";
+
+    private static readonly Dictionary<int, string> ZoneDescriptions = new()
+    {
+        { 1, "Arctic climates with extremely short growing seasons and severe winters." },
+        { 2, "Very cold regions with long winters and limited frost-free periods." },
+        { 3, "Cold northern areas with short summers and frequent deep freezes." },
+        { 4, "Cool climates with moderate summers and cold winter temperatures." },
+        { 5, "Cool-temperate regions with distinct seasons and regular winter freezes." },
+        { 6, "Mild-temperate zones with moderate winters and broad plant options." },
+        { 7, "Temperate climates with relatively mild winters and long growing seasons." },
+        { 8, "Warm-temperate regions with mild winters and hot summers." },
+        { 9, "Warm climates with rare hard freezes and long frost-free seasons." },
+        { 10, "Subtropical regions with minimal frost and year-round growing potential." },
+        { 11, "Tropical-subtropical climates with very warm temperatures year-round." },
+        { 12, "Tropical climates that stay hot year-round with no freezing temperatures." },
+        { 13, "Hottest tropical climates with consistently high heat year-round." }
+    };
 
     private readonly PlantZoneService plantZoneService;
     private readonly IPreferences preferences;
@@ -28,6 +46,18 @@ public partial class MainPageViewModel : ObservableObject
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(FindPlantZoneCommand))]
     private bool isBusy;
+
+    [ObservableProperty]
+    private string zoneCode = string.Empty;
+
+    [ObservableProperty]
+    private string zoneTemperatureRange = string.Empty;
+
+    [ObservableProperty]
+    private string zoneSearchedAt = string.Empty;
+
+    [ObservableProperty]
+    private string zoneDescription = string.Empty;
 
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
 
@@ -47,6 +77,7 @@ public partial class MainPageViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(ZipCode))
         {
             SearchResult = string.Empty;
+            ClearZoneDetails();
             ErrorMessage = "Please enter a valid ZIP code.";
             return;
         }
@@ -55,19 +86,24 @@ public partial class MainPageViewModel : ObservableObject
         {
             IsBusy = true;
             var result = await plantZoneService.GetZoneByZip(ZipCode);
-            SearchResult = result?.Zone ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(SearchResult))
+            var zone = result?.Zone ?? string.Empty;
+            SearchResult = zone;
+
+            if (string.IsNullOrWhiteSpace(zone))
             {
+                ClearZoneDetails();
                 ErrorMessage = "Could not find a plant zone. Check the ZIP code and try again.";
                 return;
             }
 
+            ApplyZoneDetails(result!);
             preferences.Set(CachedZipCodeKey, ZipCode);
             preferences.Set(CachedPlantZoneDataKey, JsonSerializer.Serialize(result));
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
             SearchResult = string.Empty;
+            ClearZoneDetails();
             ErrorMessage = "Unable to look up plant zone right now. Please try again.";
         }
         finally
@@ -85,17 +121,60 @@ public partial class MainPageViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(cachedZoneJson))
         {
             SearchResult = string.Empty;
+            ClearZoneDetails();
             return;
         }
 
         try
         {
             var cachedZoneData = JsonSerializer.Deserialize<PlantZoneDataItem>(cachedZoneJson);
-            SearchResult = cachedZoneData?.Zone ?? string.Empty;
+            if (cachedZoneData is null || string.IsNullOrWhiteSpace(cachedZoneData.Zone))
+            {
+                SearchResult = string.Empty;
+                ClearZoneDetails();
+                return;
+            }
+
+            SearchResult = cachedZoneData.Zone;
+            ApplyZoneDetails(cachedZoneData);
         }
         catch (JsonException)
         {
             SearchResult = string.Empty;
+            ClearZoneDetails();
         }
+    }
+
+    private void ApplyZoneDetails(PlantZoneDataItem zoneData)
+    {
+        ZoneCode = zoneData.Zone ?? string.Empty;
+        ZoneTemperatureRange = zoneData.TemperatureRange ?? string.Empty;
+        ZoneSearchedAt = DateTimeOffset.UtcNow.ToString(LastUpdatedDisplayFormat);
+        ZoneDescription = GetZoneDescription(ZoneCode);
+    }
+
+    private static string GetZoneDescription(string zoneCode)
+    {
+        if (string.IsNullOrWhiteSpace(zoneCode))
+        {
+            return string.Empty;
+        }
+
+        var zoneDigits = string.Concat(zoneCode.TakeWhile(char.IsDigit));
+
+        if (int.TryParse(zoneDigits, out var zoneNumber) && ZoneDescriptions.TryGetValue(zoneNumber, out var description))
+        {
+            return description;
+        }
+
+        return string.Empty;
+    }
+
+    private void ClearZoneDetails()
+    {
+        ZoneCode = string.Empty;
+        ZoneTemperatureRange = string.Empty;
+        ZoneSearchedAt = string.Empty;
+        ZoneDescription = string.Empty;
     }
 }
