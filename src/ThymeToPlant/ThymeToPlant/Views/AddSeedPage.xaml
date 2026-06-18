@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ThymeToPlant.Views.AddSeedPage"
+             Title="Add Seed">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="12" Padding="20">
+
+            <Label
+                Text="Add New Seed"
+                FontSize="24"
+                FontAttributes="Bold"
+                HorizontalOptions="Center" />
+
+            <!-- Common Name (required) -->
+            <Label Text="Common Name *" FontAttributes="Bold" />
+            <Entry
+                Placeholder="e.g. Basil"
+                Text="{Binding CommonName}"
+                AutomationId="CommonNameEntry" />
+            <Label
+                Text="{Binding CommonNameError}"
+                TextColor="Red"
+                FontSize="12"
+                IsVisible="{Binding HasCommonNameError}"
+                AutomationId="CommonNameError" />
+
+            <!-- Variety -->
+            <Label Text="Variety" />
+            <Entry
+                Placeholder="e.g. Genovese"
+                Text="{Binding Variety}"
+                AutomationId="VarietyEntry" />
+
+            <!-- Brand -->
+            <Label Text="Brand" />
+            <Entry
+                Placeholder="e.g. Seed Co"
+                Text="{Binding Brand}"
+                AutomationId="BrandEntry" />
+
+            <!-- Category -->
+            <Label Text="Category" />
+            <Entry
+                Placeholder="e.g. Herb"
+                Text="{Binding Category}"
+                AutomationId="CategoryEntry" />
+
+            <!-- Notes -->
+            <Label Text="Notes" />
+            <Editor
+                Placeholder="Additional notes..."
+                Text="{Binding Notes}"
+                AutoSize="TextChanges"
+                MinimumHeightRequest="80"
+                AutomationId="NotesEditor" />
+
+            <ActivityIndicator
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                HorizontalOptions="Center" />
+
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="12">
+                <Button
+                    Text="Cancel"
+                    Command="{Binding CancelCommand}"
+                    BackgroundColor="Gray"
+                    AutomationId="CancelButton" />
+                <Button
+                    Text="Save"
+                    Command="{Binding SaveCommand}"
+                    AutomationId="SaveButton" />
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

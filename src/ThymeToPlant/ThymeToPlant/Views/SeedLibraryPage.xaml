@@ -2,11 +2,68 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ThymeToPlant.Views.SeedLibraryPage"
-             Title="SeedLibraryPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to your Seed Library!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             Title="Seed Library">
+
+    <Grid RowDefinitions="Auto,*" Padding="16" RowSpacing="12">
+
+        <!-- Header row with title and Add button -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+            <Label
+                Grid.Column="0"
+                Text="Seed Library"
+                FontSize="24"
+                FontAttributes="Bold"
+                VerticalOptions="Center" />
+            <Button
+                Grid.Column="1"
+                Text="+ Add Seed"
+                Command="{Binding AddSeedCommand}"
+                AutomationId="AddSeedButton" />
+        </Grid>
+
+        <!-- Loading indicator -->
+        <ActivityIndicator
+            Grid.Row="1"
+            IsRunning="{Binding IsBusy}"
+            IsVisible="{Binding IsBusy}"
+            HorizontalOptions="Center"
+            VerticalOptions="Center" />
+
+        <!-- Empty state -->
+        <Label
+            Grid.Row="1"
+            Text="No seeds yet. Tap '+ Add Seed' to get started!"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            IsVisible="{Binding IsEmpty}" />
+
+        <!-- Seed list -->
+        <CollectionView
+            Grid.Row="1"
+            ItemsSource="{Binding Seeds}"
+            AutomationId="SeedList">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame BorderColor="#4CAF50" CornerRadius="8" Padding="12" Margin="0,4" HasShadow="False">
+                        <VerticalStackLayout Spacing="4">
+                            <Label
+                                Text="{Binding CommonName}"
+                                FontSize="16"
+                                FontAttributes="Bold" />
+                            <Label
+                                Text="{Binding Variety}"
+                                FontSize="13"
+                                TextColor="Gray" />
+                            <Label
+                                Text="{Binding Brand}"
+                                FontSize="13"
+                                TextColor="Gray" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
+
 </ContentPage>
