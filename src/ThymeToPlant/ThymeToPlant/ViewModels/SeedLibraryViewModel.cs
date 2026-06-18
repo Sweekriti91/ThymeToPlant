@@ -48,4 +48,3 @@ public partial class SeedLibraryViewModel : ObservableObject
         await Shell.Current.GoToAsync(nameof(AddSeedPage));
     }
 }
-

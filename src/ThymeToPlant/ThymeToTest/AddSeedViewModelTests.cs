@@ -7,39 +7,60 @@ namespace ThymeToTest;
 public class AddSeedViewModelTests
 {
     [Test]
-    public void SaveCommand_CannotExecute_WhenCommonNameIsEmpty()
+    public void SaveCommand_CanExecute_WhenNotBusy()
+    {
+        var repository = new FakeSeedRepository();
+        var viewModel = new AddSeedViewModel(repository);
+
+        Assert.That(viewModel.SaveCommand.CanExecute(null), Is.True);
+    }
+
+    [Test]
+    public void SaveCommand_CannotExecute_WhenBusy()
+    {
+        var repository = new FakeSeedRepository();
+        var viewModel = new AddSeedViewModel(repository) { IsBusy = true };
+
+        Assert.That(viewModel.SaveCommand.CanExecute(null), Is.False);
+    }
+
+    [Test]
+    public async Task Save_SetsCommonNameError_WhenCommonNameIsEmpty()
     {
         var repository = new FakeSeedRepository();
         var viewModel = new AddSeedViewModel(repository);
 
         viewModel.CommonName = string.Empty;
-        var canSave = viewModel.SaveCommand.CanExecute(null);
+        await viewModel.SaveCommand.ExecuteAsync(null);
 
-        Assert.That(canSave, Is.False);
+        Assert.That(viewModel.CommonNameError, Is.Not.Empty);
+        Assert.That(viewModel.HasCommonNameError, Is.True);
     }
 
     [Test]
-    public void SaveCommand_CanExecute_WhenCommonNameIsProvided()
-    {
-        var repository = new FakeSeedRepository();
-        var viewModel = new AddSeedViewModel(repository);
-
-        viewModel.CommonName = "Basil";
-        var canSave = viewModel.SaveCommand.CanExecute(null);
-
-        Assert.That(canSave, Is.True);
-    }
-
-    [Test]
-    public void SaveCommand_CannotExecute_WhenCommonNameIsWhitespace()
+    public async Task Save_SetsCommonNameError_WhenCommonNameIsWhitespace()
     {
         var repository = new FakeSeedRepository();
         var viewModel = new AddSeedViewModel(repository);
 
         viewModel.CommonName = "   ";
-        var canSave = viewModel.SaveCommand.CanExecute(null);
+        await viewModel.SaveCommand.ExecuteAsync(null);
 
-        Assert.That(canSave, Is.False);
+        Assert.That(viewModel.CommonNameError, Is.Not.Empty);
+        Assert.That(viewModel.HasCommonNameError, Is.True);
+        Assert.That(repository.Seeds, Is.Empty);
+    }
+
+    [Test]
+    public async Task Save_DoesNotCallRepository_WhenCommonNameIsEmpty()
+    {
+        var repository = new FakeSeedRepository();
+        var viewModel = new AddSeedViewModel(repository);
+
+        viewModel.CommonName = string.Empty;
+        await viewModel.SaveCommand.ExecuteAsync(null);
+
+        Assert.That(repository.Seeds, Is.Empty);
     }
 
     [Test]
@@ -94,43 +115,43 @@ public class AddSeedViewModelTests
         Assert.That(hasErrorValues, Contains.Item(true));
     }
 
-    private sealed class FakeSeedRepository : ISeedRepository
+    internal sealed class FakeSeedRepository : ISeedRepository
     {
-        private readonly List<Seed> seeds = [];
+        public List<Seed> Seeds { get; } = [];
 
         public Task<List<Seed>> ListAsync(CancellationToken cancellationToken = default)
-            => Task.FromResult(seeds.ToList());
+            => Task.FromResult(Seeds.ToList());
 
         public Task<Seed?> GetAsync(Guid id, CancellationToken cancellationToken = default)
-            => Task.FromResult(seeds.FirstOrDefault(s => s.Id == id));
+            => Task.FromResult(Seeds.FirstOrDefault(s => s.Id == id));
 
         public Task<Seed> AddAsync(Seed seed, CancellationToken cancellationToken = default)
         {
             seed.Id = Guid.NewGuid();
             seed.CreatedUtc = DateTime.UtcNow;
             seed.UpdatedUtc = DateTime.UtcNow;
-            seeds.Add(seed);
+            Seeds.Add(seed);
             return Task.FromResult(seed);
         }
 
         public Task UpdateAsync(Seed seed, CancellationToken cancellationToken = default)
         {
-            var existing = seeds.FirstOrDefault(s => s.Id == seed.Id);
+            var existing = Seeds.FirstOrDefault(s => s.Id == seed.Id);
             if (existing is not null)
             {
-                seeds.Remove(existing);
-                seeds.Add(seed);
+                Seeds.Remove(existing);
+                Seeds.Add(seed);
             }
             return Task.CompletedTask;
         }
 
         public Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            seeds.RemoveAll(s => s.Id == id);
+            Seeds.RemoveAll(s => s.Id == id);
             return Task.CompletedTask;
         }
 
         public Task<List<Seed>> SearchAsync(string searchTerm, CancellationToken cancellationToken = default)
-            => Task.FromResult(seeds.Where(s => s.CommonName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList());
+            => Task.FromResult(Seeds.Where(s => s.CommonName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList());
     }
 }

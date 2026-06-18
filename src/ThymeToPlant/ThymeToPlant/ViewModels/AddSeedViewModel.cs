@@ -12,7 +12,7 @@ public partial class AddSeedViewModel : ObservableObject
     private readonly ISeedRepository seedRepository;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CommonNameError))]
+    [NotifyPropertyChangedFor(nameof(HasCommonNameError))]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
     private string commonName = string.Empty;
 
@@ -33,6 +33,7 @@ public partial class AddSeedViewModel : ObservableObject
     private string commonNameError = string.Empty;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
     private bool isBusy;
 
     public bool HasCommonNameError => !string.IsNullOrEmpty(CommonNameError);
@@ -42,7 +43,7 @@ public partial class AddSeedViewModel : ObservableObject
         this.seedRepository = seedRepository;
     }
 
-    private bool CanSave() => !IsBusy && !string.IsNullOrWhiteSpace(CommonName);
+    private bool CanSave() => !IsBusy;
 
     [RelayCommand(CanExecute = nameof(CanSave))]
     private async Task Save()
