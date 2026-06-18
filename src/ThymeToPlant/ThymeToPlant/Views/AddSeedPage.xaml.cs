@@ -2,11 +2,11 @@ using ThymeToPlant.ViewModels;
 
 namespace ThymeToPlant.Views;
 
-public partial class SeedLibraryPage : ContentPage
+public partial class AddSeedPage : ContentPage
 {
-    private readonly SeedLibraryViewModel viewModel;
+    private readonly AddSeedViewModel viewModel;
 
-    public SeedLibraryPage(SeedLibraryViewModel viewModel)
+    public AddSeedPage(AddSeedViewModel viewModel)
     {
         InitializeComponent();
         BindingContext = viewModel;
@@ -16,6 +16,6 @@ public partial class SeedLibraryPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        viewModel.LoadSeedsCommand.Execute(null);
+        viewModel.ResetForm();
     }
 }
