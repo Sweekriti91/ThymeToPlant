@@ -13,7 +13,6 @@ public partial class AddSeedViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasCommonNameError))]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
     private string commonName = string.Empty;
 
     [ObservableProperty]

@@ -16,6 +16,6 @@ public partial class SeedLibraryPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        viewModel.LoadSeedsCommand.Execute(null);
+        _ = viewModel.LoadSeedsCommand.ExecuteAsync(null);
     }
 }
