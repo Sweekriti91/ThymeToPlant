@@ -35,6 +35,8 @@ public static class MauiProgram
         builder.Services.AddScoped<ISeedRepository, SeedRepository>();
         builder.Services.AddTransient<MainPageViewModel>();
         builder.Services.AddTransient<MainPage>();
+        builder.Services.AddTransient<SeedLibraryViewModel>();
+        builder.Services.AddTransient<SeedLibraryPage>();
 
         App = builder.Build();
         InitializeDatabase(App.Services);

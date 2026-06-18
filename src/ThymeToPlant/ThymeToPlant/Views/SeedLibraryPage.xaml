@@ -1,12 +1,80 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:ThymeToPlant.Models"
+             xmlns:vm="clr-namespace:ThymeToPlant.ViewModels"
+             xmlns:converters="clr-namespace:ThymeToPlant.Converters"
              x:Class="ThymeToPlant.Views.SeedLibraryPage"
-             Title="SeedLibraryPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to your Seed Library!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             x:DataType="vm:SeedLibraryViewModel"
+             Title="Seed Library">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
+            <converters:NotNullConverter x:Key="NotNullConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*" Padding="12" RowSpacing="8">
+
+        <SearchBar Grid.Row="0"
+                   Placeholder="Search seeds by name, variety, or brand"
+                   Text="{Binding SearchText, Mode=TwoWay}" />
+
+        <RefreshView Grid.Row="1"
+                     IsRefreshing="{Binding IsBusy, Mode=OneWay}"
+                     Command="{Binding RefreshCommand}">
+            <Grid>
+                <CollectionView ItemsSource="{Binding Seeds}"
+                                SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Seed">
+                            <Border Stroke="#E0E0E0"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 10"
+                                    Padding="12"
+                                    Margin="0,4">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="{Binding CommonName}"
+                                           FontSize="18"
+                                           FontAttributes="Bold" />
+                                    <Label Text="{Binding Variety}"
+                                           FontSize="14"
+                                           TextColor="#666"
+                                           IsVisible="{Binding Variety, Converter={StaticResource StringNotEmptyConverter}}" />
+                                    <Label Text="{Binding Brand, StringFormat='Brand: {0}'}"
+                                           FontSize="13"
+                                           IsVisible="{Binding Brand, Converter={StaticResource StringNotEmptyConverter}}" />
+                                    <Label Text="{Binding ExpiryDate, StringFormat='Expires: {0:yyyy-MM-dd}'}"
+                                           FontSize="13"
+                                           IsVisible="{Binding ExpiryDate, Converter={StaticResource NotNullConverter}}" />
+                                    <Label Text="{Binding QuantityRemaining, StringFormat='Quantity: {0}'}"
+                                           FontSize="13"
+                                           IsVisible="{Binding QuantityRemaining, Converter={StaticResource NotNullConverter}}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <VerticalStackLayout IsVisible="{Binding IsEmpty}"
+                                     VerticalOptions="Center"
+                                     HorizontalOptions="Center"
+                                     Spacing="8"
+                                     Padding="24">
+                    <Label Text="🌱"
+                           FontSize="56"
+                           HorizontalOptions="Center" />
+                    <Label Text="No seeds yet"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center" />
+                    <Label Text="Add a seed to start building your library."
+                           FontSize="14"
+                           TextColor="#666"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Grid>
+        </RefreshView>
+    </Grid>
 </ContentPage>
